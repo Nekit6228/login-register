@@ -1,6 +1,7 @@
 import createHttpError from "http-errors";
 import { UserCollections } from "../db/models/user.js";
 import { loginUser, logoutUser, registerUser } from "../services/auth.js";
+import { SessionsCollection } from "../db/models/session.js";
 
 
 const setupSession = (res, session) => {
@@ -78,4 +79,44 @@ export const logoutUserController = async (req, res) => {
   res.clearCookie('accessToken');
 
   res.status(204).send();
+};
+
+
+export const getMeController = async (req, res, next) => {
+  try {
+    const { sessionId } = req.cookies;
+
+    if (!sessionId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    const session = await SessionsCollection.findById(sessionId);
+    if (!session) {
+      return res.status(401).json({ message: 'Invalid session' });
+    }
+
+    if (session.accessTokenValidUntil < new Date()) {
+      await SessionsCollection.deleteOne({ _id: sessionId });
+      return res.status(401).json({ message: 'Session expired' });
+    }
+
+    const user = await UserCollections.findById(session.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      email: user.email,
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+      session: {
+        id: session._id,
+        expiresAt: session.accessTokenValidUntil,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
