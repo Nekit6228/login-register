@@ -23,7 +23,7 @@ const PORT = Number(getEnvVar('PORT', '3000'));
 
  app.use(
     cors({
-      origin: ['http://localhost:3000','https://login-register-front-76mj.vercel.app'],
+      origin: ['http://localhost:3001'],
       credentials: true,
     }),
   );

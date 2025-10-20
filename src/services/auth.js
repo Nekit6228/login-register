@@ -29,7 +29,7 @@ const session = await SessionsCollection.create({
      accessTokenValidUntil: new Date(Date.now() + THIRTY_MIN),
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
 });
- return { user, session };
+ return { user, session, accessToken, refreshToken };
 };
 
 
