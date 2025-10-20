@@ -5,28 +5,33 @@ import { SessionsCollection } from "../db/models/session.js";
 
 
 const setupSession = (res, session) => {
+  const isProd = process.env.NODE_ENV === 'production';
+
   res.cookie('accessToken', session.accessToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: isProd,           
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
     maxAge: 60 * 60 * 1000,
   });
+
   res.cookie('refreshToken', session.refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
-    maxAge: 15 * 24 * 60 * 60 * 1000, 
+    maxAge: 15 * 24 * 60 * 60 * 1000,
   });
+
   res.cookie('sessionId', session._id, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
-    maxAge: 15 * 24 * 60 * 60 * 1000, 
+    maxAge: 15 * 24 * 60 * 60 * 1000,
   });
 };
+
 
 
 
